@@ -1,101 +1,237 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
+import { Header } from "./components/header";
+import { Footer } from "./components/footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { useLanguage } from "./contexts/LanguageContext";
+import { Apartment } from "./Models/apartments";
+
+const apartments: Apartment[] = [
+  {
+    id: 1,
+    title: "Apartamento Moderno en el Centro",
+    description:
+      "Hermoso apartamento de 2 habitaciones con vistas panorámicas de la ciudad.",
+    price: 1200,
+    image: "/modern_apartment.jpg",
+    type: "rent",
+  },
+  {
+    id: 2,
+    title: "Loft Espacioso con Terraza",
+    description:
+      "Loft de diseño con amplia terraza, perfecto para entretenimiento.",
+    price: 250000,
+    image: "/loft.avif",
+    type: "sale",
+  },
+  {
+    id: 3,
+    title: "Apartamento Familiar en Zona Residencial",
+    description:
+      "Cómodo apartamento de 3 habitaciones en tranquila zona residencial.",
+    price: 1800,
+    image: "/family.jpg",
+    type: "rent",
+  },
+  {
+    id: 4,
+    title: "Estudio Céntrico Recién Renovado",
+    description:
+      "Acogedor estudio completamente renovado, ideal para profesionales.",
+    price: 150000,
+    image: "/ofi.webp",
+    type: "sale",
+  },
+  {
+    id: 5,
+    title: "Ático de Lujo con Vistas al Mar",
+    description:
+      "Espectacular ático con amplias terrazas y vistas panorámicas al mar.",
+    price: 2500,
+    image: "/atico.jpg",
+    type: "rent",
+  },
+  {
+    id: 6,
+    title: "Apartamento Premium",
+    description: "Apartamento sostenible con jardín privado",
+    price: 300000,
+    image: "/premium.webp",
+    type: "sale",
+  },
+];
+
+const translations = {
+  es: {
+    heroTitle: "Encuentra Tu Hogar Ideal",
+    heroSubtitle: "Descubre los mejores apartamentos en alquiler y venta",
+    searchPlaceholder: "Buscar por ubicación...",
+    searchButton: "Buscar",
+    featuredApartments: "Apartamentos Destacados",
+    whyChooseUs: "¿Por qué elegir RentaFácil?",
+    rent: "Alquilar",
+    buy: "Comprar",
+    features: [
+      {
+        title: "Amplia Selección",
+        description:
+          "Miles de propiedades para elegir en las mejores ubicaciones.",
+      },
+      {
+        title: "Proceso Sencillo",
+        description:
+          "Búsqueda, selección y alquiler simplificados para tu comodidad.",
+      },
+      {
+        title: "Soporte 24/7",
+        description: "Estamos aquí para ayudarte en cada paso del camino.",
+      },
+    ],
+  },
+  en: {
+    heroTitle: "Find Your Ideal Home",
+    heroSubtitle: "Discover the best apartments for rent and sale",
+    searchPlaceholder: "Search by location...",
+    searchButton: "Search",
+    featuredApartments: "Featured Apartments",
+    whyChooseUs: "Why Choose RentaFácil?",
+    rent: "Rent",
+    buy: "Buy",
+    features: [
+      {
+        title: "Wide Selection",
+        description:
+          "Thousands of properties to choose from in the best locations.",
+      },
+      {
+        title: "Simple Process",
+        description:
+          "Simplified search, selection, and rental process for your convenience.",
+      },
+      {
+        title: "24/7 Support",
+        description: "We're here to help you every step of the way.",
+      },
+    ],
+  },
+};
+
+function ApartmentCard({ apartment }: { apartment: Apartment }) {
+  const { language } = useLanguage();
+  const t = translations[language];
+
+  return (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <Image
+        src={apartment.image}
+        alt={apartment.title}
+        width={400}
+        height={300}
+        className="w-full h-48 object-cover"
+      />
+      <div className="p-4">
+        <h3 className="text-xl font-semibold mb-2">{apartment.title}</h3>
+        <p className="text-gray-600 mb-4">{apartment.description}</p>
+        <div className="flex justify-between items-center">
+          <span className="text-2xl font-bold text-gray-800">
+            ${apartment.price.toLocaleString()}
+            {apartment.type === "rent" ? "/mes" : ""}
+          </span>
+          <Button>{apartment.type === "rent" ? t.rent : t.buy}</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { language } = useLanguage();
+  const t = translations[language];
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredApartments, setFilteredApartments] = useState(apartments);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const filtered = apartments.filter(
+      (apartment) =>
+        apartment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        apartment.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredApartments(filtered);
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">
+        <section
+          className="relative h-[60vh] bg-cover bg-center flex items-center justify-center"
+          style={{
+            backgroundImage: "url('/background.jpg')",
+          }}
+        >
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="relative z-10 text-center text-white">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              {t.heroTitle}
+            </h1>
+            <p className="text-xl md:text-2xl mb-8">{t.heroSubtitle}</p>
+            <form
+              onSubmit={handleSearch}
+              className="flex justify-center max-w-md mx-auto"
+            >
+              <Input
+                type="text"
+                placeholder={t.searchPlaceholder}
+                className="rounded-r-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button type="submit" className="rounded-l-none">
+                <Search className="mr-2 h-4 w-4" /> {t.searchButton}
+              </Button>
+            </form>
+          </div>
+        </section>
+
+        <section className="container mx-auto px-4 py-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">
+            {t.featuredApartments}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredApartments.map((apartment) => (
+              <ApartmentCard key={apartment.id} apartment={apartment} />
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-gray-100 py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold mb-8 text-center">
+              {t.whyChooseUs}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {t.features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="bg-white p-6 rounded-lg shadow-md text-center"
+                >
+                  <h3 className="text-xl font-semibold mb-4">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }
