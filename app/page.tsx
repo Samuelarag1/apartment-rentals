@@ -1,70 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { Header } from "./components/header";
-import { Footer } from "./components/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useLanguage } from "./contexts/LanguageContext";
-import { Apartment } from "./Models/apartments";
-
-const apartments: Apartment[] = [
-  {
-    id: 1,
-    title: "Apartamento Moderno en el Centro",
-    description:
-      "Hermoso apartamento de 2 habitaciones con vistas panorámicas de la ciudad.",
-    price: 1200,
-    image: "/modern_apartment.jpg",
-    type: "rent",
-  },
-  {
-    id: 2,
-    title: "Loft Espacioso con Terraza",
-    description:
-      "Loft de diseño con amplia terraza, perfecto para entretenimiento.",
-    price: 250000,
-    image: "/loft.avif",
-    type: "sale",
-  },
-  {
-    id: 3,
-    title: "Apartamento Familiar en Zona Residencial",
-    description:
-      "Cómodo apartamento de 3 habitaciones en tranquila zona residencial.",
-    price: 1800,
-    image: "/family.jpg",
-    type: "rent",
-  },
-  {
-    id: 4,
-    title: "Estudio Céntrico Recién Renovado",
-    description:
-      "Acogedor estudio completamente renovado, ideal para profesionales.",
-    price: 150000,
-    image: "/ofi.webp",
-    type: "sale",
-  },
-  {
-    id: 5,
-    title: "Ático de Lujo con Vistas al Mar",
-    description:
-      "Espectacular ático con amplias terrazas y vistas panorámicas al mar.",
-    price: 2500,
-    image: "/atico.jpg",
-    type: "rent",
-  },
-  {
-    id: 6,
-    title: "Apartamento Premium",
-    description: "Apartamento sostenible con jardín privado",
-    price: 300000,
-    image: "/premium.webp",
-    type: "sale",
-  },
-];
+import { apartments } from "../data/apartments";
+import { Header } from "./components/header";
+import { ApartmentCard } from "./components/apartment-card";
+import { Footer } from "./components/footer";
 
 const translations = {
   es: {
@@ -74,8 +18,6 @@ const translations = {
     searchButton: "Buscar",
     featuredApartments: "Apartamentos Destacados",
     whyChooseUs: "¿Por qué elegir RentaFácil?",
-    rent: "Alquilar",
-    buy: "Comprar",
     features: [
       {
         title: "Amplia Selección",
@@ -100,8 +42,6 @@ const translations = {
     searchButton: "Search",
     featuredApartments: "Featured Apartments",
     whyChooseUs: "Why Choose RentaFácil?",
-    rent: "Rent",
-    buy: "Buy",
     features: [
       {
         title: "Wide Selection",
@@ -120,34 +60,6 @@ const translations = {
     ],
   },
 };
-
-function ApartmentCard({ apartment }: { apartment: Apartment }) {
-  const { language } = useLanguage();
-  const t = translations[language];
-
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <Image
-        src={apartment.image}
-        alt={apartment.title}
-        width={400}
-        height={300}
-        className="w-full h-48 object-cover"
-      />
-      <div className="p-4">
-        <h3 className="text-xl font-semibold mb-2">{apartment.title}</h3>
-        <p className="text-gray-600 mb-4">{apartment.description}</p>
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-gray-800">
-            ${apartment.price.toLocaleString()}
-            {apartment.type === "rent" ? "/mes" : ""}
-          </span>
-          <Button>{apartment.type === "rent" ? t.rent : t.buy}</Button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   const { language } = useLanguage();

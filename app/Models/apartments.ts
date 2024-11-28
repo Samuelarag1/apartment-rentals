@@ -3,6 +3,6 @@ export interface Apartment {
   title: string;
   description: string;
   price: number;
-  image: string;
+  images: string[];
   type: "rent" | "sale";
 }
