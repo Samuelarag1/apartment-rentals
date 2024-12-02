@@ -85,7 +85,7 @@ export function Header() {
               ].map((item) => (
                 <li key={item.label}>
                   <Link
-                    href={item.href}
+                    href={"#"}
                     className="text-gray-700 hover:text-gray-900"
                   >
                     {item.label}
