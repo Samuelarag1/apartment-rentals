@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -9,6 +8,7 @@ import { apartments } from "../data/apartments";
 import { Header } from "./components/header";
 import { ApartmentCard } from "./components/apartment-card";
 import { Footer } from "./components/footer";
+import { Apartment } from "./Models/apartments";
 
 const translations = {
   es: {
@@ -66,6 +66,48 @@ export default function Home() {
   const t = translations[language];
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredApartments, setFilteredApartments] = useState(apartments);
+  const [location, setLocation] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const fetchApartments = async (location: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/scraping/properties?location=cordoba`
+      );
+      if (!response.ok) {
+        throw new Error(`Error fetching apartments: ${response.statusText}`);
+      }
+      const data: Apartment[] = await response.json();
+      setFilteredApartments(data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
+
+  const requestLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const location = `${latitude},${longitude}`;
+          setLocation(location);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setLocation("cordoba");
+        }
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (location) {
+      fetchApartments(location);
+    } else {
+      requestLocation();
+    }
+  }, [location]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -116,8 +158,8 @@ export default function Home() {
             {t.featuredApartments}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredApartments.map((apartment) => (
-              <ApartmentCard key={apartment.id} apartment={apartment} />
+            {filteredApartments.map((apartment, index) => (
+              <ApartmentCard key={index} apartment={apartment} />
             ))}
           </div>
         </section>
