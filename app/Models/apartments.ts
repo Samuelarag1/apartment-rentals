@@ -5,4 +5,8 @@ export interface Apartment {
   price: number;
   images: string[];
   type: "rent" | "sale";
+  source: string;
+  location: string;
+  details: string;
+  link: string;
 }
