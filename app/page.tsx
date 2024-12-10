@@ -9,6 +9,7 @@ import { Header } from "./components/header";
 import { ApartmentCard } from "./components/apartment-card";
 import { Footer } from "./components/footer";
 import { Apartment } from "./Models/apartments";
+import Loader from "./components/Loader/Loader"; // Import the Loader component
 
 const translations = {
   es: {
@@ -18,6 +19,8 @@ const translations = {
     searchButton: "Buscar",
     featuredApartments: "Apartamentos Destacados",
     whyChooseUs: "¿Por qué elegir RentaFácil?",
+    prev: "Anterior",
+    next: "Siguiente",
     features: [
       {
         title: "Amplia Selección",
@@ -42,6 +45,8 @@ const translations = {
     searchButton: "Search",
     featuredApartments: "Featured Apartments",
     whyChooseUs: "Why Choose RentaFácil?",
+    prev: "Previous",
+    next: "Next",
     features: [
       {
         title: "Wide Selection",
@@ -65,20 +70,30 @@ export default function Home() {
   const { language } = useLanguage();
   const t = translations[language];
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredApartments, setFilteredApartments] = useState(apartments);
+  const [filteredApartments, setFilteredApartments] = useState<Apartment[]>([]);
   const [location, setLocation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const fetchApartments = async (location: string) => {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(6);
+
+  const fetchApartments = async (
+    location: string,
+    page: number,
+    limit: number
+  ) => {
     try {
+      setLoading(true);
       const response = await fetch(
-        `http://localhost:3000/scraping/properties?location=cordoba`
+        `http://localhost:3000/scraping/properties?location=${location}&page=${page}&limit=${limit}`
       );
       if (!response.ok) {
         throw new Error(`Error fetching apartments: ${response.statusText}`);
       }
       const data: Apartment[] = await response.json();
+      setTimeout(() => {
+        setLoading(false);
+      }, 1500);
       setFilteredApartments(data);
-      setLoading(false);
     } catch (error) {
       console.error(error);
       setLoading(false);
@@ -103,11 +118,11 @@ export default function Home() {
 
   useEffect(() => {
     if (location) {
-      fetchApartments(location);
+      fetchApartments(location, page, limit);
     } else {
       requestLocation();
     }
-  }, [location]);
+  }, [location, page, limit]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,6 +132,14 @@ export default function Home() {
         apartment.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredApartments(filtered);
+  };
+
+  const handleNextPage = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    setPage((prevPage) => (prevPage > 1 ? prevPage - 1 : 1));
   };
 
   return (
@@ -157,10 +180,28 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-8 text-center">
             {t.featuredApartments}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredApartments.map((apartment, index) => (
-              <ApartmentCard key={index} apartment={apartment} />
-            ))}
+
+          {loading ? (
+            <div className="relative w-full h-screen">
+              <Loader />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredApartments.map((apartment, index) => (
+                <ApartmentCard key={index} apartment={apartment} />
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-center mt-8">
+            <Button
+              onClick={handlePrevPage}
+              disabled={page === 1}
+              className="mr-4"
+            >
+              {t.prev}
+            </Button>
+            <Button onClick={handleNextPage}>{t.next}</Button>
           </div>
         </section>
 
@@ -169,16 +210,13 @@ export default function Home() {
             <h2 className="text-3xl font-bold mb-8 text-center">
               {t.whyChooseUs}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {t.features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="bg-white p-6 rounded-lg shadow-md text-center"
-                >
+                <div key={index} className="text-center">
                   <h3 className="text-xl font-semibold mb-4">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <p>{feature.description}</p>
                 </div>
               ))}
             </div>
